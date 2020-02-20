@@ -1,8 +1,8 @@
 package com.gildedrose;
 
-interface Commodity
+interface ICommodity
 {
-    public void updateQuality(Item item);
+    public void updateQuality();
 };
 
 class GildedRose
@@ -10,30 +10,82 @@ class GildedRose
     public static final String SULFURAS_HAND_OF_RAGNAROS = "Sulfuras, Hand of Ragnaros";
     public static final String BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT = "Backstage passes to a TAFKAL80ETC concert";
     public static final String AGED_BRIE = "Aged Brie";
-
-    class SulfurasHandOfRagnaros implements Commodity
+    
+    abstract class Commodity implements ICommodity
     {
+        Item item;
+        
+        Commodity(Item item)
+        {
+            this.item = item;
+        }
+        
+        public abstract void updateQuality();
+    }
+
+    class SulfurasHandOfRagnaros extends Commodity
+    {
+        SulfurasHandOfRagnaros(Item item)
+        {
+            super(item);
+        }
+
         @Override
-        public void updateQuality(Item item)
+        public void updateQuality()
         {
             increaseQuality(item);
         }
     };
 
-    class BackstagePasses implements Commodity
+    class BackstagePasses extends Commodity
     {
-        @Override
-        public void updateQuality(Item item)
+        BackstagePasses(Item item)
         {
+            super(item);
+        }
+
+        @Override
+        public void updateQuality()
+        {
+            increaseQuality(item);
+            decreaseSellIn(item);
+            if (item.sellIn < 0)
+                increaseQuality(item);
+        }
+    };
+
+    class AgedBrie extends Commodity
+    {
+        AgedBrie(Item item)
+        {
+            super(item);
+        }
+
+        @Override
+        public void updateQuality()
+        {
+            increaseQuality(item);
+            decreaseSellIn(item);
+            if (item.sellIn < 0)
+                increaseQuality(item);
 
         }
     };
 
-    class AgedBrie implements Commodity
+    class GenericItem extends Commodity
     {
-        @Override
-        public void updateQuality(Item item)
+        GenericItem(Item item)
         {
+            super(item);
+        }
+
+        @Override
+        public void updateQuality()
+        {
+            decreaseQuality(item);
+            decreaseSellIn(item);
+            if (item.sellIn < 0)
+                decreaseQuality(item);
 
         }
     };
@@ -46,43 +98,22 @@ class GildedRose
 
     public void updateQuality()
     {
-        for (Item item : items) 
-        {
-            Commodity cm = newCommodity(item);
-
-            if (cm != null)
-                cm.updateQuality(item);
-            else
-            {
-                changeQuality(item);
-
-                decreaseSellIn(item);
-
-                if (item.sellIn < 0) {
-                    changeQuality(item);
-                }
-            }
-        }
+        for (Item item : items)
+            newCommodity(item).updateQuality();
     }
 
     private Commodity newCommodity(Item item)
     {
         if (equals(item, SULFURAS_HAND_OF_RAGNAROS))
-            return new SulfurasHandOfRagnaros();
-
-        return null;
-    }
-
-    private void changeQuality(Item item)
-    {
-        if (!equals(item, AGED_BRIE) && !equals(item, BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT))
-        {
-             decreaseQuality(item);
-        }
+            return new SulfurasHandOfRagnaros(item);
         else
-        {
-            increaseQuality(item);
-        }
+        if (equals(item, BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT))
+            return new BackstagePasses(item);
+        else
+        if (equals(item, AGED_BRIE))
+            return new AgedBrie(item);
+
+        return new GenericItem(item);
     }
 
     private boolean equals(Item item, String name)
