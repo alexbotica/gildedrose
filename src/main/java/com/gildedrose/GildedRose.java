@@ -1,10 +1,42 @@
 package com.gildedrose;
 
+interface Commodity
+{
+    public void updateQuality(Item item);
+};
+
 class GildedRose
 {
     public static final String SULFURAS_HAND_OF_RAGNAROS = "Sulfuras, Hand of Ragnaros";
     public static final String BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT = "Backstage passes to a TAFKAL80ETC concert";
     public static final String AGED_BRIE = "Aged Brie";
+
+    class SulfurasHandOfRagnaros implements Commodity
+    {
+        @Override
+        public void updateQuality(Item item)
+        {
+            increaseQuality(item);
+        }
+    };
+
+    class BackstagePasses implements Commodity
+    {
+        @Override
+        public void updateQuality(Item item)
+        {
+
+        }
+    };
+
+    class AgedBrie implements Commodity
+    {
+        @Override
+        public void updateQuality(Item item)
+        {
+
+        }
+    };
 
     Item[] items;
 
@@ -16,24 +48,36 @@ class GildedRose
     {
         for (Item item : items) 
         {
-            changeQuality(item);
+            Commodity cm = newCommodity(item);
 
-            if (!equals(item, SULFURAS_HAND_OF_RAGNAROS))
-                decreaseSellIn(item);
-
-            if (item.sellIn < 0)
+            if (cm != null)
+                cm.updateQuality(item);
+            else
             {
                 changeQuality(item);
+
+                decreaseSellIn(item);
+
+                if (item.sellIn < 0) {
+                    changeQuality(item);
+                }
             }
         }
+    }
+
+    private Commodity newCommodity(Item item)
+    {
+        if (equals(item, SULFURAS_HAND_OF_RAGNAROS))
+            return new SulfurasHandOfRagnaros();
+
+        return null;
     }
 
     private void changeQuality(Item item)
     {
         if (!equals(item, AGED_BRIE) && !equals(item, BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT))
         {
-            if (!equals(item, SULFURAS_HAND_OF_RAGNAROS))
-                decreaseQuality(item);
+             decreaseQuality(item);
         }
         else
         {
