@@ -5,26 +5,24 @@ interface ICommodity
     public void updateQuality();
 };
 
-class GildedRose
+abstract class Commodity implements ICommodity
 {
-    public static final String SULFURAS_HAND_OF_RAGNAROS = "Sulfuras, Hand of Ragnaros";
-    public static final String BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT = "Backstage passes to a TAFKAL80ETC concert";
-    public static final String AGED_BRIE = "Aged Brie";
-    
-    abstract class Commodity implements ICommodity
+    Item item;
+
+    Commodity(Item item)
     {
-        Item item;
-        
-        Commodity(Item item)
-        {
-            this.item = item;
-        }
-        
-        public abstract void updateQuality();
+        this.item = item;
     }
 
+    public abstract void updateQuality();
+}
+
+class GildedRose
+{
     class SulfurasHandOfRagnaros extends Commodity
     {
+        public static final String NameId = "Sulfuras, Hand of Ragnaros";
+
         SulfurasHandOfRagnaros(Item item)
         {
             super(item);
@@ -39,6 +37,8 @@ class GildedRose
 
     class BackstagePasses extends Commodity
     {
+        public static final String NameId = "Backstage passes to a TAFKAL80ETC concert";
+
         BackstagePasses(Item item)
         {
             super(item);
@@ -56,6 +56,8 @@ class GildedRose
 
     class AgedBrie extends Commodity
     {
+        public static final String NameId = "Aged Brie";
+
         AgedBrie(Item item)
         {
             super(item);
@@ -104,13 +106,13 @@ class GildedRose
 
     private Commodity newCommodity(Item item)
     {
-        if (equals(item, SULFURAS_HAND_OF_RAGNAROS))
+        if (equals(item, SulfurasHandOfRagnaros.NameId))
             return new SulfurasHandOfRagnaros(item);
         else
-        if (equals(item, BACKSTAGE_PASSES_TO_A_TAFKAL_80_ETC_CONCERT))
+        if (equals(item, BackstagePasses.NameId))
             return new BackstagePasses(item);
         else
-        if (equals(item, AGED_BRIE))
+        if (equals(item, AgedBrie.NameId))
             return new AgedBrie(item);
 
         return new GenericItem(item);
@@ -129,16 +131,12 @@ class GildedRose
     private void decreaseQuality(Item item)
     {
         if (item.quality > 0)
-        {
-             item.quality = item.quality - 1;
-        }
+            item.quality = item.quality - 1;
     }
 
     private void increaseQuality(Item item)
     {
         if (item.quality < 50)
-        {
             item.quality = item.quality + 1;
-        }
     }
 }
